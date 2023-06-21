@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import RepositoriesListItem from './RepositoriesListItem';
-import { async } from 'validate.js';
 
 // Second best solution to resolve errors with act
 // jest.mock('../tree/FileIcon', () => {
