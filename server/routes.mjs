@@ -99,7 +99,9 @@ routes.get('/api/repositories', async (req, res) => {
   }
 
   try {
-    const { data } = await axios.get(process.env.UPSTREAM_API + req.url);
+    const { data } = await axios.get(
+      process.env.UPSTREAM_API + req.url
+    );
 
     await client.cachedResponse.create({
       data: {
@@ -121,35 +123,45 @@ routes.get('/api/repositories', async (req, res) => {
   }
 });
 
-routes.get('/api/repositories/:owner/:name/contents/*', async (req, res) => {
-  try {
-    const cachedResponse = await client.cachedResponse.findUnique({
-      where: { id: JSON.stringify(req.params) },
-    });
-    if (cachedResponse) {
-      return res.json(JSON.parse(cachedResponse.value));
-    }
-    const { data } = await axios.get(process.env.UPSTREAM_API + req.url);
-
-    await client.cachedResponse.create({
-      data: {
-        id: JSON.stringify(req.params),
-        value: JSON.stringify(data),
-      },
-    });
-
-    return res.json(data);
-  } catch (err) {
-    if (err.response) {
-      console.error(
-        err.config.method + ' ' + err.config.baseURL + err.config.url
+routes.get(
+  '/api/repositories/:owner/:name/contents/*',
+  async (req, res) => {
+    try {
+      const cachedResponse = await client.cachedResponse.findUnique({
+        where: { id: JSON.stringify(req.params) },
+      });
+      if (cachedResponse) {
+        return res.json(JSON.parse(cachedResponse.value));
+      }
+      const { data } = await axios.get(
+        process.env.UPSTREAM_API + req.url
       );
-      console.error(err.response.data);
-      return res.status(err.response.status).json(err.response.data);
+
+      await client.cachedResponse.create({
+        data: {
+          id: JSON.stringify(req.params),
+          value: JSON.stringify(data),
+        },
+      });
+
+      return res.json(data);
+    } catch (err) {
+      if (err.response) {
+        console.error(
+          err.config.method +
+            ' ' +
+            err.config.baseURL +
+            err.config.url
+        );
+        console.error(err.response.data);
+        return res
+          .status(err.response.status)
+          .json(err.response.data);
+      }
+      res.status(500).json({ message: err.message });
     }
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
 const requireUser = (req, res, next) => {
   if (!req.session || !req.session.id) {

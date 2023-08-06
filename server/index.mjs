@@ -1,12 +1,18 @@
 import './env.mjs';
 import express from 'express';
 import cookieSession from 'cookie-session';
+import bodyParser from 'body-parser';
 import routes from './routes.mjs';
 
 const initServer = async () => {
   const app = express();
 
   app.use(express.json());
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    })
+  );
   app.use(
     cookieSession({
       name: 'session',
